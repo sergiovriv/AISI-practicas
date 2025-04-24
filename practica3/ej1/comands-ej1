@@ -1,0 +1,62 @@
+modulo shell para probar conectividad + seleccionar ambas, o una y otra maquina. 
+
+ansible servers -m shell -a "ls" -> hará un ls en ambas maquinas
+ansible db -m shell -a "ls" -> hará un ls solo en la db
+
+
+#### Ejercicio 1 ####
+
+#Instala el paquete python3-mysqlclient en web y db (módulo package):
+ansible servers -b  -m package -a "name=python3-mysqlclient state=latest"
+
+#Instala los paquetes npm y nodejs solo en web (módulo package):
+ansible web -b -m package -a "name=npm state=latest"
+ansible web -b -m package -a "name=nodejs state=latest"
+
+#Copia el directorio /vagrant/webapp del controlador en la ruta /home/vagrant de web (módulo copy):
+ansible web -b -m copy  -a "src=/vagrant/webapp dest=/home/vagrant"
+
+#Establece vagrant como el propietario de usuario y de grupo:
+ansible web -b -m file -a "path=/home/vagrant owner=vagrant group=vagrant"
+
+#Instala las dependencias de la aplicación Node.js en web (módulo npm):
+https://docs.ansible.com/ansible/2.9_ja/modules/npm_module.html
+ansible web -b -m npm -a "path=/home/vagrant/webapp state=present production=no"
+
+#Instala el paquete mariadb-server en db (módulo package):
+ansible db -b -m package -a "name=mariadb-server state=latest"
+
+#Arranca el servicio mariadb en db y activa su inicio automático en el arranque del sistema (módulo service)
+ansible db -b -m service -a "name=mariadb state=started enabled=yes"
+(enabled habilita para iniciar cuando lo haga el sistema)
+
+# Crea una base de datos en db (módulo mysql_db)
+ansible db -b -m mysql_db -a "name=svr2425-database state=present"
+
+#Crea en db el usuario de conexión a tu base de datos (módulo mysql_user)
+ansible db -b -m mysql_user -a "name=svr2425 password=0000 host=svr2425-web priv=svr2425-database.*:ALL state=present"
+
+#web hostname
+ansible web -m setup -a "filter=ansible_default_ipv4"
+
+#Ejecuta la aplicación Node.js en web usando el módulo shell
+ansible web -b -m shell -a "node /home/vagrant/webapp/app.js" &
+
+
+BATERIA: 
+
+ansible servers -m shell -a "ls"
+ansible db -m shell -a "ls"
+ansible servers -b -m package -a "name=python3-mysqlclient state=latest"
+ansible web -b -m package -a "name=npm state=latest"
+ansible web -b -m package -a "name=nodejs state=latest"
+ansible web -b -m copy -a "src=/vagrant/webapp dest=/home/vagrant"
+ansible web -b -m file -a "path=/home/vagrant owner=vagrant group=vagrant"
+ansible web -b -m npm -a "path=/home/vagrant/webapp state=present production=no"
+ansible db -b -m package -a "name=mariadb-server state=latest"
+ansible db -b -m service -a "name=mariadb state=started enabled=yes"
+ansible db -b -m mysql_db -a "name=svr2425-database state=present"
+ansible db -b -m mysql_user -a "name=svr2425 password=0000 host=svr2425-web priv=svr2425-database.*:ALL state=present"
+ansible web -m setup -a "filter=ansible_default_ipv4"
+ansible web -b -m shell -a "node /home/vagrant/webapp/app.js" &
+

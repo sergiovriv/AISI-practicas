@@ -1,0 +1,8 @@
+[masters]
+svr2425-k8s-master
+[workers]
+svr2425-k8s-worker1
+svr2425-k8s-worker2
+[cluster:children]
+masters
+workers

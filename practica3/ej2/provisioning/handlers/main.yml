@@ -1,0 +1,6 @@
+# Define handlers here
+- name: Restart apache
+  ansible.builtin.service:
+   name: apache2
+   state: restarted
+#service module first gets the status of the service (httpd). If the service is started or running or reloaded and the desired service state is started, it will not restart the service.
