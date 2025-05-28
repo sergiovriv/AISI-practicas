@@ -1,0 +1,9 @@
+[masters]
+svr2425-master
+[workers]
+svr2425-worker1
+svr2425-worker2
+# Group 'cluster' with all nodes
+[cluster:children]
+masters
+workers
